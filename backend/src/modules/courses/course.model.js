@@ -15,9 +15,12 @@ const courseSchema = new Schema(
     thumbnail: {
       type: String,
       required: true,
+      default: "",
     },
     category: {
       type: String,
+      required: true,
+      trim: true,
     },
     instructor: {
       type: mongoose.Schema.ObjectId,
@@ -26,6 +29,7 @@ const courseSchema = new Schema(
     price: {
       type: Number,
       required: true,
+      min: 0,
     },
     isPublished: {
       type: Boolean,
