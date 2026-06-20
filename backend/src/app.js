@@ -1,14 +1,15 @@
 import express from "express";
-import errorHandler from './middleware/error.middleware.js'
+import cookieParser from "cookie-parser";
+import errorHandler from "./middleware/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
-
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
 
-app.use(errorHandler)
+app.use(errorHandler);
 
 export default app;

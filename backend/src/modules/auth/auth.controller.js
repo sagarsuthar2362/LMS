@@ -2,6 +2,7 @@ import User from "../users/user.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import ApiError from "../../utils/ApiError.js";
 import bcrypt from "bcrypt";
+import { generateToken } from "./auth.token.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -36,7 +37,6 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email }).select("+password");
-  console.log(user);
 
   if (!user) {
     throw new ApiError(401, "Invalid credentials");
@@ -48,5 +48,30 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
-  return res.status(200).json({ success: true, user });
+  let token = await generateToken({
+    id: user._id,
+    role: user.role,
+  });
+
+  res.cookie("token", token);
+
+  return res.status(200).json({ success: true, user, token });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});
+
+export const me = asyncHandler(async (req, res) => {
+  const currentUser = await User.findById(req.user.id);
+
+  if (!currentUser) {
+    throw new ApiError(404, "user not found");
+  }
+
+  res.status(200).json({ success: true, currentUser });
 });
