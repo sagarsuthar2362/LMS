@@ -3,7 +3,7 @@ import ApiError from "../../utils/ApiError.js";
 import Course from "./course.model.js";
 
 export const createCourse = asyncHandler(async (req, res) => {
-  const { title, description, price, category, isPublished } = req.body;
+  const { title, description, price, category } = req.body;
 
   if (!title || !description || !price || !category) {
     throw new ApiError(400, "fields cannot be empty");
@@ -14,7 +14,6 @@ export const createCourse = asyncHandler(async (req, res) => {
     description,
     price,
     category,
-    isPublished,
     instructor: req.user.id,
     thumbnail: "testing",
   });
@@ -25,7 +24,10 @@ export const createCourse = asyncHandler(async (req, res) => {
 });
 
 export const publishedCourses = asyncHandler(async (req, res) => {
-  let courses = await Course.find({ isPublished: true });
+  let courses = await Course.find({ isPublished: true }).populate(
+    "instructor",
+    "name avatar",
+  );
 
   res.status(200).json({ success: true, courses });
 });
@@ -35,7 +37,7 @@ export const singleCourse = asyncHandler(async (req, res) => {
 
   let course = await Course.findById(courseId);
 
-  if (!course) {
+  if (!course.isPublished || !course) {
     throw new ApiError(404, "course not found");
   }
 
@@ -43,36 +45,34 @@ export const singleCourse = asyncHandler(async (req, res) => {
 });
 
 export const updateCourse = asyncHandler(async (req, res) => {
-  const {
-    title,
-    description,
-    price,
-    category,
-    isPublished,
-    thumbnail,
-    courseId,
-  } = req.body;
+  const { title, description, price, category, isPublished, thumbnail } =
+    req.body;
+  const { courseId } = req.params;
 
   const course = await Course.findOne({ _id: courseId });
 
-  if(!course){
-    throw new ApiError()
+  if (!course) {
+    throw new ApiError();
   }
 
-  if (course.instructor !== req.user.id) {
+  if (course.instructor.toString() !== req.user.id) {
     throw new ApiError(401, "unauthorized access");
   }
 
-  const updatedCourse = await Course.updateOne(
-    { _id: courseId },
-    { title, description, thumbnail, price, category, isPublished },
-  );
+  const updatedCourse = await Course.findByIdAndUpdate(courseId, {
+    title,
+    description,
+    thumbnail,
+    price,
+    category,
+    isPublished,
+  });
 
   res.status(200).json({ success: true, updatedCourse });
 });
 
 export const deleteCourse = asyncHandler(async (req, res) => {
-  const { courseId } = req.body;
+  const { courseId } = req.params;
 
   const course = await Course.findOne({ _id: courseId });
 
@@ -83,11 +83,26 @@ export const deleteCourse = asyncHandler(async (req, res) => {
     );
   }
 
+  await Course.findByIdAndDelete(courseId);
+
   res
     .status(200)
     .json({ success: true, message: "Course deleted succesfully" });
 });
 
-export const publishCourse = asyncHandler(async (req, res) => {});
+export const publishCourse = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
+
+  let course = await Course.findOne({ _id: courseId });
+
+  if (course.instructor.toString() !== req.user.id) {
+    throw new ApiError(403, "unauthorized access");
+  }
+
+  course.isPublished = !course.isPublished;
+  await course.save();
+
+  res.status(200).json({ success: true, course });
+});
 
 export const uploadThumbnail = asyncHandler(async (req, res) => {});
