@@ -55,7 +55,7 @@ export const login = asyncHandler(async (req, res) => {
 
   res.cookie("token", token);
 
-  return res.status(200).json({ success: true, user, token });
+  return res.status(200).json({ success: true, user });
 });
 
 export const logout = asyncHandler(async (req, res) => {

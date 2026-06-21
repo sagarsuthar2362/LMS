@@ -1,0 +1,40 @@
+
+# POST http://localhost:5000/api/auth/register
+# Content-Type: application/json
+
+# {
+#     "name":"sagar suthar",
+#     "email":"sagar@gmail.com",
+#     "password":"123456",
+#     "role":"student",
+# }
+
+
+# POST http://localhost:5000/api/auth/login
+# Content-Type: application/json
+
+# {
+#     "email":"sagar@gmail.com",
+#     "password":"123456"
+# }
+
+
+POST http://localhost:5000/api/courses
+Content-Type: application/json
+
+{
+    "title":"course title",
+    "description":"course description",
+    "price":999,
+    "category":"web dev",
+    "isPublished": false,
+}
+
+
+# POST http://localhost:5000/api/auth/login
+# Content-Type: application/json
+
+# {
+#     "email":"sagar@gmail.com",
+#     "password":"123456"
+# }
