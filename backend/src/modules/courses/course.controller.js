@@ -35,7 +35,10 @@ export const publishedCourses = asyncHandler(async (req, res) => {
 export const singleCourse = asyncHandler(async (req, res) => {
   const { courseId } = req.params;
 
-  let course = await Course.findById(courseId);
+  let course = await Course.findById(courseId).populate(
+    "instructor",
+    "name avatar",
+  );
 
   if (!course.isPublished || !course) {
     throw new ApiError(404, "course not found");
@@ -76,7 +79,7 @@ export const deleteCourse = asyncHandler(async (req, res) => {
 
   const course = await Course.findOne({ _id: courseId });
 
-  if (course.instructor !== req.user.id) {
+  if (course.instructor.toString() !== req.user.id) {
     throw new ApiError(
       401,
       "You are trying to delete the resource which is not yours",

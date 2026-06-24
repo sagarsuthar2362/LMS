@@ -14,6 +14,7 @@ const courseRoutes = Router();
 
 // instructor routes
 courseRoutes.post("/", verifyToken, authorize("instructor"), createCourse);
+
 courseRoutes.patch(
   "/:courseId",
   verifyToken,
