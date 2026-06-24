@@ -1,6 +1,8 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import ApiError from "../../utils/ApiError.js";
 import Course from "./course.model.js";
+import fs from "fs/promises";
+import uploadOnCloudinary from "../../config/cloudinary.config.js";
 
 export const createCourse = asyncHandler(async (req, res) => {
   const { title, description, price, category } = req.body;
@@ -108,4 +110,26 @@ export const publishCourse = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, course });
 });
 
-export const uploadThumbnail = asyncHandler(async (req, res) => {});
+export const uploadThumbnail = asyncHandler(async (req, res) => {
+  const thumbnail = req.file;
+
+  const cloudinaryUrl = await uploadOnCloudinary(thumbnail.path);
+  await fs.unlink(thumbnail.path);
+
+  const course = await Course.findById(req.params.courseId);
+  if (!course) {
+    throw new ApiError(404, "course not found");
+  }
+
+  if (course.instructor.toString() !== req.user.id) {
+    throw new ApiError(403, "forbidden");
+  }
+
+  course.thumbnail = cloudinaryUrl;
+  await course.save();
+
+  res.status(200).json({
+    success: true,
+    course,
+  });
+});
