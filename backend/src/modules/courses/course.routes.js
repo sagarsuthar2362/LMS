@@ -6,9 +6,11 @@ import {
   publishedCourses,
   singleCourse,
   updateCourse,
+  uploadThumbnail,
 } from "./course.controller.js";
 import { verifyToken } from "../../middleware/verifyToken.js";
 import { authorize } from "../../middleware/authorize.js";
+import upload from "../../middleware/multer.middleware.js";
 
 const courseRoutes = Router();
 
@@ -34,6 +36,13 @@ courseRoutes.patch(
   verifyToken,
   authorize("instructor"),
   publishCourse,
+);
+
+courseRoutes.patch(
+  "/:courseId/thumbnail",
+  upload.single("thumbnail"),
+  verifyToken,
+  uploadThumbnail,
 );
 
 // routes for everyone
