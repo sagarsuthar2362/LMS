@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import ApiError from "../utils/ApiError";
+import ApiError from "../utils/ApiError.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,7 +12,7 @@ const uploadOnCloudinary = async (path) => {
     let result = await cloudinary.uploader.upload(path);
     return result.secure_url;
   } catch (error) {
-    throw new ApiError(500, "unable to upload thumbnail");
+    throw new ApiError(500, error.message);
   }
 };
 
