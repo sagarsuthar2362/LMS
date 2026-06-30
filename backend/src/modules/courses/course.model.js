@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { Schema } from "mongoose";
 
-const courseSchema = new Schema(
+const courseSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -23,7 +22,7 @@ const courseSchema = new Schema(
       trim: true,
     },
     instructor: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     price: {
